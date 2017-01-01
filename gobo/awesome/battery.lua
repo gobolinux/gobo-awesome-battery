@@ -19,47 +19,20 @@ local function draw_glow(cr, x, y, w, h, r, g, b, a, rad)
       glow:set_corner_color_rgba(2, r, g, b, 0)
       glow:set_corner_color_rgba(3, r, g, b, a)
    end
-
-   -- left   
-   glow:begin_patch()
-   glow:move_to(x, y)
-   glow:line_to(x-rad, y-rad)
-   glow:line_to(x-rad, y+h+rad)
-   glow:line_to(x, y+h)
-   glow:line_to(x, y)
-   set_colors()
-   glow:end_patch()
-
-   -- top
-   glow:begin_patch()
-   glow:move_to(x, y)
-   glow:line_to(x-rad, y-rad)
-   glow:line_to(x+w+rad, y-rad)
-   glow:line_to(x+w, y)
-   glow:line_to(x, y)
-   set_colors()
-   glow:end_patch()
-
-   -- right   
-   glow:begin_patch()
-   glow:move_to(x+w, y)
-   glow:line_to(x+w+rad, y-rad)
-   glow:line_to(x+w+rad, y+h+rad)
-   glow:line_to(x+w, y+h)
-   glow:line_to(x+w, y)
-   set_colors()
-   glow:end_patch()
-   
-   -- bottom
-   glow:begin_patch()
-   glow:move_to(x+w, y+h)
-   glow:line_to(x+w+rad, y+h+rad)
-   glow:line_to(x-rad, y+h+rad)
-   glow:line_to(x, y+h)
-   glow:line_to(x+w, y+h)
-   set_colors()
-   glow:end_patch()
-   
+   local function draw_side(x1, y1, x2, y2, x3, y3, x4, y4)
+      glow:begin_patch()
+      glow:move_to(x1, y1)
+      glow:line_to(x2, y2)
+      glow:line_to(x3, y3)
+      glow:line_to(x4, y4)
+      glow:line_to(x1, y1)
+      set_colors()
+      glow:end_patch()
+   end
+   draw_side(x, y, x-rad, y-rad, x-rad, y+h+rad, x, y+h) -- left
+   draw_side(x, y, x-rad, y-rad, x+w+rad, y-rad, x+w, y) -- top
+   draw_side(x+w, y, x+w+rad, y-rad, x+w+rad, y+h+rad, x+w, y+h) -- right
+   draw_side(x+w, y+h, x+w+rad, y+h+rad, x-rad, y+h+rad, x, y+h) -- bottom
    cr:set_source(glow)
    cr:paint()
 end
