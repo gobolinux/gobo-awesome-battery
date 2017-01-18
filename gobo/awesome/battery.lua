@@ -114,7 +114,8 @@ end
 local function update(state)
    local basedir = "/sys/class/power_supply"
    local old_percent = state.percent
-   for dir in lfs.dir(basedir) do
+   local dir_iter, dir_obj = lfs.dir(basedir)
+   for dir in dir_iter, dir_obj do
       local fd = io.open(basedir.."/"..dir.."/capacity", "r")
       if fd then
          local capacity = tonumber(fd:read("*a"))
@@ -127,6 +128,7 @@ local function update(state)
             state.mode = fd:read("*l")
             fd:close()
          end
+         dir_obj:close()
          break
       end
    end
