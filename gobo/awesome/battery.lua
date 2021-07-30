@@ -11,6 +11,13 @@ local timer = gears.timer or timer
 local lgi = require("lgi")
 local cairo = lgi.require("cairo")
 
+local pok, light = pcall(require, "gobo.awesome.light")
+if not pok then
+   light = {
+      update_backlight = function() end
+   }
+end
+
 local function draw_glow(cr, x, y, w, h, r, g, b, a, rad)
    local glow = cairo.Pattern.create_mesh()
    local function set_colors()
@@ -115,6 +122,7 @@ local function update(state)
    local basedir = "/sys/class/power_supply"
    local old_percent = state.percent
    local dir_iter, dir_obj = lfs.dir(basedir)
+
    for dir in dir_iter, dir_obj do
       local fd = io.open(basedir.."/"..dir.."/capacity", "r")
       if fd then
@@ -128,18 +136,38 @@ local function update(state)
             state.mode = fd:read("*l")
             fd:close()
          end
-         dir_obj:close()
-         break
+      else
+         local fd = io.open(basedir.."/"..dir.."/online", "r")
+         if fd then
+            local status = tonumber(fd:read("*a"))
+            fd:close()
+            if status == 1 then
+               state.mode = "Charging"
+            end
+         end
       end
    end
-   if state.mode ~= "Charging" and 
-      ((old_percent > 15 and state.percent <= 15) or
+   dir_obj:close()
+ 
+   if state.mode == "Charging" then
+      if state.prev_mode and state.prev_mode ~= "Charging" then
+         state.prev_light = light.update_backlight("100")
+      end
+   else
+      if state.prev_mode and state.prev_mode == "Charging" and state.prev_light then
+         light.update_backlight(state.prev_light)
+      end
+
+      if ((old_percent > 15 and state.percent <= 15) or
        (old_percent > 10 and state.percent <= 10) or
        (old_percent > 5 and state.percent <= 5) or
        (old_percent > 1 and state.percent <= 1))
-   then
-      state.alert = true
+      then
+         state.alert = true
+      end
    end
+
+   state.prev_mode = state.mode
 end
 
 function battery.new()
