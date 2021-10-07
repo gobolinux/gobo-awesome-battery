@@ -1,7 +1,7 @@
 gobo-awesome-battery
 ====================
 
-A battery widget for Awesome WM. This widget was created for [https://gobolinux.org](GoboLinux).
+A battery widget for Awesome WM. This widget was created for [GoboLinux](https://gobolinux.org).
 
 Requirements
 ------------
